@@ -786,3 +786,24 @@ def set_default_subparser(parser,
         if not subparser_found:
             # insert default in first position before all other arguments
             sys.argv.insert(1, default_subparser)
+
+
+def get_group_args(group_name, parser, parsed_args):
+    """Returns only parsed args from group that are not None
+    
+    Args:
+        group_name: name of the args group
+        parser: parser
+        parsed_args: args parsed
+    
+    Returns:
+        dict: parsed args from group group_name (not None)
+    """
+
+    des_group = [group for group in parser._action_groups
+                 if group.title == group_name][0]
+    group_dict = {action.dest: getattr(parsed_args, action.dest, None)
+                  for action in des_group._group_actions}
+    valid_args = {key: value for key, value in
+                  vars(argparse.Namespace(**group_dict)).items() if value}
+    return valid_args

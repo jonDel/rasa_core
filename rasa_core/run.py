@@ -10,6 +10,7 @@ import argparse
 import logging
 from flask import Flask
 from flask_cors import CORS
+from gevent import ssl
 from gevent.pywsgi import WSGIServer
 from threading import Thread
 from typing import Text, Optional, Union, List
@@ -25,8 +26,11 @@ from rasa_core.channels import (
 from rasa_core.interpreter import (
     NaturalLanguageInterpreter)
 from rasa_core.tracker_store import TrackerStore
-from rasa_core.utils import read_yaml_file, AvailableEndpoints
+from rasa_core.utils import read_yaml_file, AvailableEndpoints, get_group_args
 logger = logging.getLogger()  # get the root logger
+
+SSL_GROUP = 'ssl'
+
 
 
 def create_argument_parser():
@@ -95,6 +99,28 @@ def create_argument_parser():
             default="HS256",
             help="Method used for the signature of the JWT authentication "
                  "payload.")
+
+    ssl_arg = parser.add_argument_group(SSL_GROUP)
+    ssl_arg.add_argument(
+            '--keyfile',
+            default=None,
+            type=str,
+            help="path of the file containing the ssl private key")
+    ssl_arg.add_argument(
+            '--certfile',
+            default=None,
+            type=str,
+            help="path of the file containing the ssl certificate")
+    ssl_arg.add_argument(
+            '--ca_certs',
+            default=None,
+            type=str,
+            help="path of the file containing a list of root certificates")
+    ssl_arg.add_argument(
+            '--ssl_version',
+            default=None,
+            type=type(ssl.PROTOCOL_TLS),
+            help="version of the SSL protocol to connect to the server")
 
     utils.add_logging_option_arguments(parser)
     return parser
@@ -189,8 +215,7 @@ def serve_application(initial_agent,
                       enable_api=True,
                       jwt_secret=None,
                       jwt_method=None,
-                      **ssl_args,
-                      ):
+                      **ssl_args):
 
     if not channel and not credentials_file:
         channel = "cmdline"
@@ -199,7 +224,7 @@ def serve_application(initial_agent,
 
     http_server = start_server(input_channels, cors, auth_token,
                                port, initial_agent, enable_api,
-                               jwt_secret, jwt_method)
+                               jwt_secret, jwt_method, **ssl_args)
 
     if channel == "cmdline":
         start_cmdline_io(constants.DEFAULT_SERVER_FORMAT.format(port),
@@ -254,6 +279,7 @@ if __name__ == '__main__':
                         interpreter=_interpreter,
                         tracker_store=_tracker_store,
                         endpoints=_endpoints)
+    ssl_args = get_group_args(SSL_GROUP, arg_parser, cmdline_args)
     serve_application(_agent,
                       cmdline_args.connector,
                       cmdline_args.port,
@@ -262,4 +288,5 @@ if __name__ == '__main__':
                       cmdline_args.auth_token,
                       cmdline_args.enable_api,
                       cmdline_args.jwt_secret,
-                      cmdline_args.jwt_method)
+                      cmdline_args.jwt_method,
+                      **ssl_args)

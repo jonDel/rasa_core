@@ -12,6 +12,7 @@ import uuid
 import zipfile
 from threading import Thread
 
+from flask_cors import CORS
 import six
 import typing
 from gevent.pywsgi import WSGIServer
@@ -529,6 +530,7 @@ class Agent(object):
                         http_port=constants.DEFAULT_SERVER_PORT,
                         serve_forever=True,
                         route="/webhooks/",
+                        cors=None,
                         **ssl_args):
         # type: (List[InputChannel], int, bool, Text) -> WSGIServer
         """Start a webserver attaching the input channels and handling msgs.
@@ -539,6 +541,7 @@ class Agent(object):
         from flask import Flask
 
         app = Flask(__name__)
+        CORS(app, resources={r"/*": {"origins": cors or ""}})
         rasa_core.channels.channel.register(channels,
                                             app,
                                             self.handle_message,
