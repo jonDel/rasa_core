@@ -790,12 +790,12 @@ def set_default_subparser(parser,
 
 def get_group_args(group_name, parser, parsed_args):
     """Returns only parsed args from group that are not None
-    
+
     Args:
         group_name: name of the args group
         parser: parser
         parsed_args: args parsed
-    
+
     Returns:
         dict: parsed args from group group_name (not None)
     """

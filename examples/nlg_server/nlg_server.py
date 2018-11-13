@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_SERVER_PORT = 5056
 SSL_GROUP = 'ssl'
 
+
 def create_argument_parser():
     """Parse all the command line arguments for the nlg server script."""
 

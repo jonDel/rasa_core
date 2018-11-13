@@ -32,7 +32,6 @@ logger = logging.getLogger()  # get the root logger
 SSL_GROUP = 'ssl'
 
 
-
 def create_argument_parser():
     """Parse all the command line arguments for the run script."""
 
