@@ -1311,14 +1311,16 @@ def _start_interactive_learning_io(endpoint, stories, on_finish,
 def _serve_application(app, stories,
                        finetune=False,
                        serve_forever=True,
-                       skip_visualization=False):
+                       skip_visualization=False,
+                       **ssl_args):
     # type: (Flask, Text, bool, bool, bool) -> WSGIServer
     """Start a core server and attach the interactive learning IO."""
 
     if not skip_visualization:
         _add_visualization_routes(app, "story_graph.dot")
 
-    http_server = WSGIServer(('0.0.0.0', DEFAULT_SERVER_PORT), app, log=None)
+    http_server = WSGIServer(('0.0.0.0', DEFAULT_SERVER_PORT), app, log=None,
+                             **ssl_args)
     logger.info("Rasa Core server is up and running on "
                 "{}".format(DEFAULT_SERVER_URL))
     http_server.start()
@@ -1360,11 +1362,13 @@ def _add_visualization_routes(app, image_path=None):
 def run_interactive_learning(agent, stories,
                              finetune=False,
                              serve_forever=True,
-                             skip_visualization=False):
+                             skip_visualization=False,
+                             **ssl_args):
     # type: (Agent, Text, bool, bool, bool) -> WSGIServer
     """Start the interactive learning with the model of the agent."""
 
     app = server.create_app(agent)
 
     return _serve_application(app, stories, finetune,
-                              serve_forever, skip_visualization)
+                              serve_forever, skip_visualization,
+                              *ssl_args)

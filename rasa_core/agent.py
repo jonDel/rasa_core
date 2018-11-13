@@ -528,7 +528,8 @@ class Agent(object):
     def handle_channels(self, channels,
                         http_port=constants.DEFAULT_SERVER_PORT,
                         serve_forever=True,
-                        route="/webhooks/"):
+                        route="/webhooks/",
+                        **ssl_args):
         # type: (List[InputChannel], int, bool, Text) -> WSGIServer
         """Start a webserver attaching the input channels and handling msgs.
 
@@ -543,7 +544,7 @@ class Agent(object):
                                             self.handle_message,
                                             route=route)
 
-        http_server = WSGIServer(('0.0.0.0', http_port), app)
+        http_server = WSGIServer(('0.0.0.0', http_port), app, **ssl_args)
         http_server.start()
 
         if serve_forever:
