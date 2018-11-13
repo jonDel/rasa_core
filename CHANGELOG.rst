@@ -22,6 +22,17 @@ Changed
 
 Fixed
 -----
+- ``SlackBot`` when created in ``SlackInputChannel`` inherits the
+  ``slack_channel`` property, allowing Slack bots to post to any channel
+  instead of only back to the user
+
+[0.12.1] - 2018-11-11
+^^^^^^^^^^^^^^^^^^^^^
+
+Fixed
+-----
+- fixed interactive learning to properly submit executed actions to the action
+  server
 
 .. _v0-12-0:
 
