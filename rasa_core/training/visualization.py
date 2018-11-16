@@ -1,7 +1,8 @@
-import typing
 from collections import defaultdict, deque
 
 import random
+import re
+import typing
 from typing import Any, Text, List, Dict, Optional
 
 from rasa_core.actions.action import ACTION_LISTEN_NAME
@@ -330,6 +331,13 @@ def _create_graph(fontsize: int = 12) -> 'networkx.MultiDiGraph':
     return graph
 
 
+def sanitize(s):
+    if s:
+        return re.sub(r"[^a-zA-Z0-9\s_-]", "",  s)
+    else:
+        return s
+
+
 def _add_message_edge(graph: 'networkx.MultiDiGraph',
                       message: Dict[Text, Any],
                       current_node: int,
@@ -339,8 +347,8 @@ def _add_message_edge(graph: 'networkx.MultiDiGraph',
     """Create an edge based on the user message."""
 
     if message:
-        message_key = message.get("intent", {}).get("name", None)
-        message_label = message.get("text", None)
+        message_key = sanitize(message.get("intent", {}).get("name", None))
+        message_label = sanitize(message.get("text", None))
     else:
         message_key = None
         message_label = None
